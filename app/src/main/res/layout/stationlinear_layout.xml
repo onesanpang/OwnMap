@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="wrap_content"
+    android:gravity="center_horizontal"
+    android:padding="5dp"
+    android:background="@drawable/mybutton_normal"
+    android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/stationlinear_text_num"
+        android:text="1"
+        android:textColor="#ffffff"
+        android:textSize="10dp"
+        android:gravity="center"
+        android:background="@drawable/stationtext_background"
+        android:layout_width="22dp"
+        android:layout_height="22dp" />
+    <View
+        android:layout_marginTop="3dp"
+        android:background="#cccccc"
+        android:layout_width="1dp"
+        android:layout_height="30dp"/>
+    <TextView
+        android:id="@+id/stationlinear_text_name"
+        android:text="老福山"
+        android:ems="1"
+        android:layout_marginTop="3dp"
+        android:textSize="9dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>

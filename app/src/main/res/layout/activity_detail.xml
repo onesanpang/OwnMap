@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.DetailActivity">
+
+    <com.youth.banner.Banner
+        android:id="@+id/detail_banner"
+        android:layout_width="match_parent"
+        android:layout_height="270dp" />
+
+    <ImageView
+        android:id="@+id/detail_image_back"
+        android:layout_width="25dp"
+        android:layout_height="25dp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="20dp"
+        android:src="@mipmap/imageback" />
+    <LinearLayout
+        android:background="@drawable/mybutton_normal"
+        android:id="@+id/detail_linear_title"
+        android:padding="10dp"
+        android:orientation="vertical"
+        android:layout_below="@+id/detail_banner"
+        android:layout_width="match_parent"
+        android:layout_height="70dp">
+        <TextView
+            android:id="@+id/detail_text_title"
+            android:textColor="#000000"
+            android:text="福星汽修"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/detail_text_address"
+            android:text="莲塘北大道375号莲塘北大道375号莲塘北大道375号莲塘北大道375号莲塘北大道375号莲塘北大道375号"
+            android:layout_marginTop="5dp"
+            android:textSize="14dp"
+            android:lines="1"
+            android:ellipsize = "end"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/detail_linear_extension"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:layout_below="@+id/detail_linear_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+        <LinearLayout
+            android:background="@drawable/mybutton_normal"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+            <TextView
+                android:gravity="center"
+                android:text="营业时间"
+                android:textColor="#000000"
+                android:textSize="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/detail_text_time"
+                android:text="00:00-00:00"
+                android:gravity="center"
+                android:layout_marginTop="3dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:background="@drawable/mybutton_normal"
+            android:orientation="vertical"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+            <TextView
+                android:gravity="center"
+                android:text="评分"
+                android:textColor="#000000"
+                android:textSize="16dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/detail_text_rand"
+                android:text="4.6"
+                android:layout_marginTop="3dp"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+    <com.amap.api.maps.MapView
+        android:id="@+id/detail_mapview"
+        android:layout_below="@id/detail_linear_extension"
+        android:layout_above="@id/detail_bottom"
+        android:layout_width="match_parent"
+
+        android:layout_height="match_parent">
+
+    </com.amap.api.maps.MapView>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.1dp"
+        android:layout_above="@+id/detail_bottom"
+        android:background="#cccccc" />
+
+    <LinearLayout
+        android:id="@+id/detail_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="5dp">
+
+        <LinearLayout
+            android:id="@+id/detail_linear_shoucang"
+            android:background="#ffffff"
+            android:layout_width="30dp"
+            android:layout_height="60dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ImageView
+                android:id="@+id/detail_image_shoucang"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/shoucang" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:textSize="10dp"
+                android:text="收藏" />
+        </LinearLayout>
+        <Button
+            android:id="@+id/detail_but_call"
+            android:textColor="#ffffff"
+            android:text="打电话"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="3"
+            android:background="#FF9800" />
+
+        <Button
+            android:textColor="#ffffff"
+            android:text="地图显示"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_marginLeft="5dp"
+            android:layout_weight="3"
+            android:background="#FF5722" />
+    </LinearLayout>
+</RelativeLayout>

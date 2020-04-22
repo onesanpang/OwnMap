@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.MainActivity">
+
+    <EditText
+        android:id="@+id/main_edit_id"
+        android:background="#00000000"
+        android:inputType="number"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <View
+        android:background="#03A9F4"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+
+    <EditText
+        android:id="@+id/main_edit_password"
+        android:background="#00000000"
+        android:inputType="textPassword"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
+    <View
+        android:background="#03A9F4"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"/>
+
+
+    <Button
+        android:id="@+id/main_button"
+        android:text="登陆"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

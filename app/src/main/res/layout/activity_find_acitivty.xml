@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.FindAcitivty">
+    <View
+        android:background="#F44336"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"/>
+    <LinearLayout
+        android:padding="5dp"
+        android:gravity="center_vertical"
+        android:background="#F44336"
+        android:orientation="horizontal"
+        android:focusableInTouchMode="true"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+        <ImageView
+            android:layout_marginLeft="2dp"
+            android:id="@+id/find_image_back"
+            android:layout_width="25dp"
+            android:src="@mipmap/imageback"
+            android:layout_height="25dp" />
+        <EditText
+            android:id="@+id/find_edit"
+            android:layout_weight="3.9"
+            android:hint="请输入目的地"
+            android:paddingLeft="10dp"
+            android:drawableLeft="@mipmap/find"
+            android:layout_marginLeft="5dp"
+            android:textSize="15dp"
+            android:background="@drawable/findedittext_layout"
+            android:textColorHint="#BBBBBB"
+            android:textColor="#3D3D3D"
+            android:layout_width="0dp"
+            android:layout_height="30dp" />
+        <TextView
+            android:gravity="center"
+            android:id="@+id/find_but"
+            android:text="搜索"
+            android:textSize="16dp"
+            android:textColor="#ffffff"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+   <LinearLayout
+       android:padding="10dp"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+       <ListView
+           android:id="@+id/find_list"
+           android:layout_width="match_parent"
+           android:divider="#00000000"
+           android:dividerHeight="10dp"
+           android:layout_height="match_parent"/>
+   </LinearLayout>
+</LinearLayout>
