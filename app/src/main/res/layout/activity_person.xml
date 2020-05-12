@@ -49,6 +49,10 @@
     <ListView
         android:id="@+id/person_listview"
         android:layout_width="match_parent"
+        android:divider="@color/transparent"
+        android:dividerHeight="5dp"
+        android:layout_marginTop="5dp"
+        android:padding="5dp"
         android:layout_height="wrap_content"></ListView>
 
 </LinearLayout>

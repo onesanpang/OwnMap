@@ -3,10 +3,12 @@ package com.example.ownmap.activity.dialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -19,25 +21,33 @@ import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
 import com.example.ownmap.R;
 import com.example.ownmap.activity.db.DBServer;
+import com.example.ownmap.activity.java.HttpUtil;
+import com.example.ownmap.activity.java.Person;
+import com.google.gson.Gson;
+
+import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class PersonDialog extends Dialog implements View.OnClickListener {
 
     private EditText editName, editNum;
     private Button butNo, butYes;
-    private DBServer db;
-    private SQLiteDatabase mDbWriter;
-    private SQLiteDatabase mDbReader;
-    private SimpleCursorAdapter mSimpleCursorAdapter;
+    private SharedPreferences sp;
+    private String id;
+    private String addFriendUrl = "http://47.106.112.29:8080/collect/addFriend";
 
     private Context mContext;
 
-    public PersonDialog(Context context, DBServer db, SQLiteDatabase mDbWriter, SQLiteDatabase mDbReader, SimpleCursorAdapter mSimpleCursorAdapter) {
+    public PersonDialog(Context context) {
         super(context);
         this.mContext = context;
-        this.db = db;
-        this.mDbWriter = mDbWriter;
-        this.mDbReader = mDbReader;
-        this.mSimpleCursorAdapter = mSimpleCursorAdapter;
     }
 
     @Override
@@ -62,8 +72,8 @@ public class PersonDialog extends Dialog implements View.OnClickListener {
         butNo.setOnClickListener(this);
         butYes.setOnClickListener(this);
 
-
-        refreshListview();
+        sp = mContext.getSharedPreferences("user",Context.MODE_PRIVATE);
+        id = sp.getString("id","");
 
     }
 
@@ -74,35 +84,41 @@ public class PersonDialog extends Dialog implements View.OnClickListener {
                 dismiss();
                 break;
             case R.id.persondialog_but_yes:
-                insertData();
-                refreshListview();
+                addFriend(addFriendUrl);
+//                refreshListview();
                 dismiss();
                 break;
         }
     }
 
     //增
-    private void insertData() {
+    private void addFriend(String url) {
         if (!TextUtils.isEmpty(editName.getText().toString()) && !TextUtils.isEmpty(editNum.getText().toString())) {
-            ContentValues contentValues = new ContentValues();
-            contentValues.put("name", editName.getText().toString());
-            contentValues.put("number", editNum.getText().toString());
-            mDbWriter.insert("person_tab", null, contentValues);
+//            ContentValues contentValues = new ContentValues();
+//            contentValues.put("name", editName.getText().toString());
+//            contentValues.put("number", editNum.getText().toString());
+//            mDbWriter.insert("person_tab", null, contentValues);
+            Person person = new Person(editName.getText().toString(),editNum.getText().toString(),id);
+            Gson gson = new Gson();
+            String json = gson.toJson(person);
+            RequestBody body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json);
+            HttpUtil.sendJsonOkhttpRequest(url, body, new Callback() {
+                @Override
+                public void onFailure(@NotNull Call call, @NotNull IOException e) {
 
+                }
+
+                @Override
+                public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                    Log.e("添加联系人",response.body().string());
+                }
+            });
             editName.setText("");
             editNum.setText("");
 
         } else {
             Toast.makeText(mContext, "请检查是否输入正确!!!", Toast.LENGTH_SHORT).show();
         }
-    }
-
-
-
-    //刷新数据列表
-    public void refreshListview() {
-        Cursor mCursor = mDbWriter.query("person_tab", null, null, null, null, null, null);
-        mSimpleCursorAdapter.changeCursor(mCursor);
     }
 
 }

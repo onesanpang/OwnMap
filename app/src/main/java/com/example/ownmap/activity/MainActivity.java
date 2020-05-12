@@ -1,6 +1,8 @@
 package com.example.ownmap.activity;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -8,6 +10,7 @@ import android.os.Message;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -36,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button logonBut;
     private EditText userId, userPassword;
     private final String url = "http://www.zfjw.xupt.edu.cn";
+    private SharedPreferences sp;
+    private SharedPreferences.Editor editor;
     private final String loginUrl = "http://222.24.62.120/default2.aspx ";
     private Map<String, String> cookies = new HashMap<>();
     private Connection connection;
@@ -51,13 +56,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case 1:
-                    Log.e("msg1","cookies："+cookies.get(0));
+                    Log.e("msg1", "cookies：" + cookies.get(0));
                     getRSApublickey();
                     //getStudentInformaction();
                     break;
                 case 2:
-                    Log.e("msg2","passord:"+password+"   cookies"+cookies.size()+"     csrftoken"+csrftoken);
+                    Log.e("msg2", "passord:" + password + "   cookies" + cookies.size() + "     csrftoken" + csrftoken);
                     login();
+                    break;
+                case 3:
+                    editor.putString("id", userId.getText().toString());
+                    editor.commit();
+                    Toast.makeText(MainActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(MainActivity.this, ImportActivity.class));
+                    finish();
                     break;
 
             }
@@ -77,6 +89,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         userPassword = findViewById(R.id.main_edit_password);
 
         logonBut.setOnClickListener(this);
+
+        sp = getSharedPreferences("user", MODE_PRIVATE);
+        editor = sp.edit();
+        String id = sp.getString("id", "");
+        if (!id.equals("")) {
+            userId.setText(id);
+        }
     }
 
     @Override
@@ -84,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (view.getId()) {
             case R.id.main_button:
                 checkInput();
+                hideEdit(userPassword);
                 //startActivity(new Intent(MainActivity.this,ImportActivity.class));
                 break;
 
@@ -102,7 +122,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     connection.header("User-Agen", "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:29.0) Gecko/20100101 Firefox/29.0");
                     response = connection.execute();
                     cookies = response.cookies();
-                    Log.e("cookies","cookies_size："+cookies.size());
+                    Log.e("cookies", "cookies_size：" + cookies.size());
                     document = Jsoup.parse(response.body());
                     csrftoken = document.getElementById("csrftoken").val();
                     Message msg = new Message();
@@ -131,13 +151,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     response = connection.cookies(cookies).ignoreContentType(true).execute();
                     JSONObject jsonObject = new JSONObject(response.body());
                     modulus = jsonObject.getString("modulus");
-                    Log.e("password",modulus);
+                    Log.e("password", modulus);
                     exponent = jsonObject.getString("exponent");
-                    Log.e("password",exponent);
+                    Log.e("password", exponent);
                     password = userPassword.getText().toString();
                     password = RSAEncoder.RSAEncrypt(password, B64.b64tohex(modulus), B64.b64tohex(exponent));
                     password = B64.hex2b64(password);
-                    Log.e("password",password);
+                    Log.e("password", password);
                     Message msg = new Message();
                     msg.what = 2;
                     mHandler.sendMessage(msg);
@@ -174,15 +194,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                     document = Jsoup.parse(response.body());
                     if (document.getElementById("tips") == null) {
-                        handler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(MainActivity.this, "登陆成功", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(MainActivity.this,ImportActivity.class));
-                                finish();
-                            }
-                        });
-                        Log.e("登陆", "登陆成功");
+                        Message msg = new Message();
+                        msg.what = 3;
+                        mHandler.sendMessage(msg);
                     } else {
                         handler.post(new Runnable() {
                             @Override
@@ -190,7 +204,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 Toast.makeText(MainActivity.this, document.getElementById("tips").text(), Toast.LENGTH_SHORT).show();
                             }
                         });
-                        Log.e("登陆", document.getElementById("tips").text()+"  123");
+                        Log.e("登陆", document.getElementById("tips").text() + "  123");
                     }
 
                 } catch (IOException e) {
@@ -210,6 +224,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /**
+     * 隐藏输入法
+     */
+    private void hideEdit(EditText edit){
+        InputMethodManager inputMethodManager =(InputMethodManager)getApplicationContext().
+                getSystemService(Context.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(edit.getWindowToken(),0);
+    }
 
 
 //    private void getStudentInformaction(){

@@ -1,5 +1,6 @@
 package com.example.ownmap.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -7,17 +8,23 @@ import androidx.cursoradapter.widget.CursorAdapter;
 import androidx.cursoradapter.widget.SimpleCursorAdapter;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -28,22 +35,42 @@ import android.widget.Toast;
 import com.example.ownmap.R;
 import com.example.ownmap.activity.db.DBServer;
 import com.example.ownmap.activity.dialog.PersonDialog;
+import com.example.ownmap.activity.java.HttpUtil;
+import com.example.ownmap.activity.java.Person;
+import com.example.ownmap.activity.java.PersonListViewAdapter;
 import com.example.ownmap.activity.java.StatusBarTransparent;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.FormBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class PersonActivity extends AppCompatActivity implements View.OnClickListener {
 
     private ImageView imageBack,imageAdd;
     private ListView listView;
-
-    private DBServer db;
-    private SQLiteDatabase mDbWriter;
-    private SQLiteDatabase mDbReader;
     private PersonDialog dialog;
-    private SimpleCursorAdapter mSimpleCursorAdapter;
+    private Dialog deleteDialog;
+    private TextView textBack,textDelect;
+    private View inflate;
     public static final int REQUEST_CALL_PERMISSION = 10111; //拨号请求码
+    private SharedPreferences sp;
+    private String id;
+    private String findAllFriendUrl = "http://47.106.112.29:8080/collect/findAllFriend";
+    private String deleteFriendUrl= "http://47.106.112.29:8080/collect/deleteFriend";
+    private List<Person> personList;
+    private int itemPosition;
+    private PersonListViewAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,25 +94,20 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
         imageBack.setOnClickListener(this);
         imageAdd.setOnClickListener(this);
 
-        //初始化数据库
-        db  = new DBServer(this);
-        mDbWriter = db.getWritableDatabase();
-        mDbReader = db.getReadableDatabase();
-        mSimpleCursorAdapter = new SimpleCursorAdapter(this,R.layout.person_item,null,
-                new String[]{"name","number"},new int[]{R.id.person_item_name,R.id.person_item_number}, CursorAdapter.FLAG_REGISTER_CONTENT_OBSERVER);
+        sp = getSharedPreferences("user",MODE_PRIVATE);
+        id = sp.getString("id","");
+        personList = new ArrayList<>();
 
-        listView.setAdapter(mSimpleCursorAdapter);
+        dialog = new PersonDialog(this);
 
-        dialog = new PersonDialog(this,db,mDbWriter,mDbReader,mSimpleCursorAdapter);
-
-        refreshListview();
-
+        getFriendIndo(findAllFriendUrl);
         //长按删除
         listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                deleteData(position);
-                refreshListview();
+                //deleteFriend(deleteFriendUrl,position);
+                itemPosition = position;
+                showDialog();
                 return true;
             }
         });
@@ -95,11 +117,9 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                //call();
+                call("tel:"+personList.get(position).getPhone());
             }
         });
-
-        //默认选中第一条
 
     }
 
@@ -112,23 +132,76 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.person_image_add:
                 dialog.show();
                 break;
+            case R.id.persondelectdialog_text_back:
+                deleteDialog.dismiss();
+                break;
+            case R.id.persondelectdialog_text_delect:
+                deleteFriend(deleteFriendUrl,itemPosition);
+                Toast.makeText(this, "删除成功", Toast.LENGTH_SHORT).show();
+                personList.remove(itemPosition);
+                adapter.notifyDataSetChanged();
+                deleteDialog.dismiss();
+                break;
         }
     }
 
-    //刷新数据列表
-    public void refreshListview() {
-        Cursor mCursor = mDbWriter.query("person_tab", null, null, null, null, null, null);
-        mSimpleCursorAdapter.changeCursor(mCursor);
-    }
 
+    private void getFriendIndo(String url){
+        RequestBody body = new FormBody.Builder()
+                .add("studentNumber",id)
+                .build();
+        HttpUtil.sendJsonOkhttpRequest(url, body, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                //Log.e("联系人",response.body().string());
+                try {
+                    JSONObject jsonObject = new JSONObject(response.body().string());
+                    if (jsonObject.optInt("ec") == 200){
+                        final JSONArray array = jsonObject.getJSONArray("data");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (int i = 0; i < array.length(); i++) {
+                                    Person person = new Person(array.optJSONObject(i).optInt("id"),array.optJSONObject(i).optString("name"),
+                                            array.optJSONObject(i).optString("phone"),array.optJSONObject(i).optString("studentNumber"));
+                                    personList.add(person);
+                                }
+                                adapter = new PersonListViewAdapter(PersonActivity.this,personList);
+                                listView.setAdapter(adapter);
+                            }
+                        });
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
     //
     //删
-    private void deleteData(int position) {
-        Cursor mCursor = mSimpleCursorAdapter.getCursor();
-        mCursor.moveToPosition(position);
-        int itemId = mCursor.getInt(mCursor.getColumnIndex("_id"));
-        mDbWriter.delete("person_tab", "_id=?", new String[]{itemId + ""});
-        refreshListview();
+    private void deleteFriend(String url,int position) {
+        int id = personList.get(position).getId();
+        RequestBody body = new FormBody.Builder()
+                .add("id", String.valueOf(id))
+                .build();
+        HttpUtil.sendJsonOkhttpRequest(url, body, new Callback() {
+            @Override
+            public void onFailure(@NotNull Call call, @NotNull IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+                Log.e("删除联系人",response.body().string());
+
+            }
+        });
     }
 
     private void call(String telPhone) {
@@ -136,7 +209,39 @@ public class PersonActivity extends AppCompatActivity implements View.OnClickLis
             Intent intent = new Intent(Intent.ACTION_CALL, Uri.parse(telPhone));
             startActivity(intent);
         }
+    }
 
+    private void showDialog(){
+        deleteDialog = new Dialog(this,R.style.persondelectdialog);
+        inflate = LayoutInflater.from(this).inflate(R.layout.persondelectdialog_layout, null);
+        textBack = inflate.findViewById(R.id.persondelectdialog_text_back);
+        textDelect = inflate.findViewById(R.id.persondelectdialog_text_delect);
+
+        textBack.setOnClickListener(this);
+        textDelect.setOnClickListener(this);
+
+        deleteDialog.setContentView(inflate);
+        deleteDialog.getWindow().setLayout((ViewGroup.LayoutParams.WRAP_CONTENT), ViewGroup.LayoutParams.WRAP_CONTENT);
+        deleteDialog.show();
+    }
+
+    /**
+     * 检查权限后的回调
+     * @param requestCode 请求码
+     * @param permissions  权限
+     * @param grantResults 结果
+     */
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_CALL_PERMISSION: //拨打电话
+                if (permissions.length != 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {//失败
+                    Toast.makeText(this,"请允许拨号权限后再试",Toast.LENGTH_SHORT).show();
+                } else {//成功
+                    call("tel:"+"10086");
+                }
+                break;
+        }
     }
 
     /**

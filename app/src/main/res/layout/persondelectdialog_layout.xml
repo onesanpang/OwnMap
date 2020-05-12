@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="@drawable/listviewbackground" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <TextView
+        android:text="提示"
+        android:textSize="17dp"
+        android:textColor="#000000"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:text="确认是否删除联系人"
+        android:textColor="#000000"
+        android:padding="5dp"
+        android:textSize="14dp"
+        android:layout_marginTop="10dp"
+        android:textStyle="bold"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_marginTop="20dp"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/persondelectdialog_text_back"
+            android:textColor="#F44336"
+            android:text="取消"
+            android:layout_weight="4"
+            android:padding="8dp"
+            android:gravity="right"
+            android:layout_width="0dp"
+            android:textSize="14dp"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/persondelectdialog_text_delect"
+            android:textColor="#F44336"
+            android:text="删除"
+            android:gravity="right"
+            android:textSize="14dp"
+            android:padding="8dp"
+            android:layout_weight="1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</LinearLayout>

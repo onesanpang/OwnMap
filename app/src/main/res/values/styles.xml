@@ -14,4 +14,11 @@
         <item name="android:backgroundDimEnabled">false</item><!--activity不变暗-->
     </style>
 
+    <style name="persondelectdialog" parent="@android:style/Animation">
+        <item name="android:windowEnterAnimation">@anim/persondialog_enter</item>
+        <item name="android:windowExitAnimation">@anim/persondialog_exit</item>
+        <item name="android:backgroundDimEnabled">true</item><!--activity变暗-->
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
+
 </resources>

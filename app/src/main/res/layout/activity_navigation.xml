@@ -3,8 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
+    android:orientation="vertical"
     android:layout_height="match_parent"
     tools:context=".activity.NavigationActivity">
+    <View
+        android:background="#F44336"
+        android:layout_width="match_parent"
+        android:layout_height="25dp"/>
     <com.amap.api.navi.AMapNaviView
         android:id="@+id/navi_view"
         android:layout_width="match_parent"
